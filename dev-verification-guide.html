@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelloCloud · dev 검증 교본</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f3ed;color:#233131;font:16px/1.75 "Malgun Gothic",sans-serif}main{max-width:1000px;margin:auto;padding:30px 18px 60px}header{padding:clamp(24px,6vw,62px);background:#103c38;color:white;border-radius:24px}header p{color:#d0e8e0;margin-bottom:0}small{color:#bce2cc}h1{font-size:clamp(28px,5vw,47px);line-height:1.22;margin:10px 0}h2{line-height:1.35;margin-top:0}nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin:18px 0}button{font:inherit;border:1px solid #abc3b8;background:white;border-radius:12px;padding:9px;color:#16483f;cursor:pointer}button[aria-pressed=true]{background:#15584c;color:white}section,details{background:#fff;border:1px solid #d8dfd5;border-radius:16px;padding:clamp(15px,3vw,25px);margin:12px 0}summary{cursor:pointer;font-weight:bold}pre{padding:14px;border-radius:10px;background:#173630;color:white;white-space:pre-wrap;overflow-wrap:anywhere}code{overflow-wrap:anywhere}.map{padding:12px;background:#e5f0e9;border-radius:10px}.note{background:#f9edda;padding:12px;border-radius:10px}.step{color:#146653;font-weight:bold}a{color:#146653}table{border-collapse:collapse;width:100%}td,th{text-align:left;border-bottom:1px solid #d8dfd5;padding:8px;vertical-align:top}footer{margin-top:20px}
+header{background:linear-gradient(120deg,#102f32,#205b51);border-bottom:6px solid #8bd1b1}section{box-shadow:0 4px 18px #1736300a}.overview h2{margin-bottom:14px}.lane{background:#e9f3ed;border-radius:14px;padding:14px;margin:10px 0}.lane.use{background:#edf1fb}.lane h3{font-size:1rem;margin:0 0 10px}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}.flow button{display:grid;justify-items:center;min-width:0;gap:2px;padding:10px 4px;box-shadow:0 2px 5px #17363012}.flow button:hover,.flow button:focus-visible{outline:2px solid #236c59}.flow span{font-size:1.35rem}.flow small{color:#3c5552;font-size:.75rem}.flow i{color:#38665e;font-style:normal}.legend{margin-bottom:0;color:#3c5552;font-size:.9rem}.note{border-left:4px solid #cf9d51}.step{display:inline-block;background:#e5f0e9;padding:3px 10px;border-radius:20px;margin-top:0}@media(max-width:480px){.flow{gap:4px}.flow b{font-size:.8rem}.flow small{font-size:.68rem}}
+</style>
+<main>
+<header><small>HelloCloud · 팀 dev 학습 노트</small><h1>배포된 웹에서<br>조직 만들기까지</h1><p>오늘 할 일을 따라가며 내가 무엇을 확인했고, 다음에는 어디를 볼지 익혀요.</p></header>
+<section class="overview"><h2>한눈에 보는 dev 검증</h2>
+<div class="lane"><h3>📦 배포 설정이 반영되는 길</h3><div class="flow">
+<button type="button" data-panel="image"><span aria-hidden="true">🏷️</span><b>GitHub</b><small>웹 버전을 적어요</small></button><i aria-hidden="true">→</i>
+<button type="button" data-panel="argo"><span aria-hidden="true">🔄</span><b>Argo CD</b><small>설정을 반영해요</small></button><i aria-hidden="true">→</i>
+<button type="button" data-panel="backend"><span aria-hidden="true">⚙️</span><b>Kubernetes</b><small>서비스를 실행해요</small></button></div></div>
+<div class="lane use"><h3>🌐 내 브라우저 요청이 가는 길</h3><div class="flow">
+<button type="button" data-panel="browser"><span aria-hidden="true">💻</span><b>내 Chrome</b><small>SSH 통로로 접속해요</small></button><i aria-hidden="true">→</i>
+<button type="button" data-panel="argo"><span aria-hidden="true">🚦</span><b>Gateway</b><small>요청을 나눠 보내요</small></button><i aria-hidden="true">→</i>
+<button type="button" data-panel="browser"><span aria-hidden="true">🧩</span><b>HelloCloud</b><small>웹 · 로그인 · 조직 API</small></button></div></div>
+<p class="legend">🖥️ 웹은 화면을 보여줘요. 🔐 Keycloak은 로그인을 처리해요. 👥 user-service는 조직을 조회하고 만들어요.</p>
+</section>
+<nav aria-label="검증 단계">
+<button type="button" data-panel="all" aria-pressed="false">🗂️ 전체 보기</button>
+<button type="button" data-panel="image" aria-pressed="true">🏷️ 1. 웹 이미지</button>
+<button type="button" data-panel="argo" aria-pressed="false">🔄 2. 배포 상태</button>
+<button type="button" data-panel="backend" aria-pressed="false">⚙️ 3. 백엔드 기동</button>
+<button type="button" data-panel="browser" aria-pressed="false">🌐 4. 브라우저 검증</button>
+</nav>
+<section id="image" class="lesson"><p class="step">1 · 팀 dev 서버 터미널</p><h2>내가 테스트할 웹은 어느 버전일까?</h2><p>이미지 태그는 <b>실행할 앱의 버전표</b>예요. GitHub의 dev 설정에 적힌 태그와 dev Deployment의 이미지 끝에 붙은 태그를 비교해요.</p>
+<pre>kubectl -n ideaconnection-dev get deployment web -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'</pre>
+<p>예를 들어 출력이 <code>ghcr.io/…/idcn-web:5e74d5a</code>라면 Deployment에 <code>5e74d5a</code>가 설정돼 있다는 뜻이에요. 이 번호는 당시 예시예요. 오늘 비교할 때는 현재 GitHub 파일을 열어 <code>image.tag</code>를 봐요. <a href="https://github.com/ktcloud-cloudnative-2026/team03-HelloCloud/blob/main/deploy/values/web/values-dev.yaml">팀 GitHub · 웹 dev 이미지 설정</a></p><p class="note">두 태그가 다르면 어느 버전이 설정돼 있는지 기록하고, 다음 단계에서 web-dev의 동기화 상태를 확인해요.</p></section>
+<section id="argo" class="lesson" hidden><p class="step">2 · 팀 dev 서버 터미널</p><h2>Git에 적힌 배포 설정이 반영됐을까?</h2><pre>kubectl -n argocd get applications.argoproj.io web-dev gateway-dev</pre><p><b>web-dev</b>는 웹 배포를, <b>gateway-dev</b>는 Gateway 경로 설정 등을 관리해요. <b>Synced</b>는 비교한 설정이 일치한다는 뜻이고, <b>Healthy</b>는 Argo CD가 해당 리소스 상태를 정상으로 본다는 뜻이에요.</p><p class="note">연후님이 직접 본 것은 <b>gateway-dev · Synced / Healthy</b>예요. 이 조회는 터미널에서 할 수 있어요. Argo CD 관리 화면의 인증서 경고는 그 화면으로 연결할 때의 문제예요. 웹 사용 흐름은 4단계에서 확인해요.</p></section>
+<section id="backend" class="lesson" hidden><p class="step">3 · 팀 dev 서버 터미널</p><h2>조직 요청을 처리할 백엔드가 준비됐을까?</h2><pre>kubectl -n argocd get applications.argoproj.io user-service-dev
+kubectl -n ideaconnection-dev get deployment user-service</pre><p>첫 줄은 Argo CD의 배포 상태를 봐요. 두 번째 줄은 실제 서비스의 Deployment에서 <b>READY가 1/1</b>인지 봐요. 1/1은 필요한 복제본 1개가 준비됐다는 뜻이에요.</p><p class="note"><b>NotFound</b>면 앱 등록 또는 배포가 됐는지 확인해요. <b>0/1</b>이면 user-service 담당자와 기동 상태부터 확인해요. 브라우저 로그인과 조직 기능은 다음 단계에서 실제로 눌러 봐요.</p></section>
+<section id="browser" class="lesson" hidden><p class="step">4 · 내 PC의 테스트용 Chrome</p><h2>팀원이 쓰는 주소에서 직접 확인하기</h2><p>팀 README대로 로컬 WSL에서 SSH 프록시를 켜고, Windows에서 해당 프록시를 쓰는 테스트용 Chrome을 열어요. 연후님 로컬 SSH 별명은 <code>t3-dev-cp</code>였어요. <a href="https://github.com/ktcloud-cloudnative-2026/team03-HelloCloud/blob/main/services/web/README.md">팀 GitHub · 테스트용 Chrome 실행 방법</a></p>
+<pre>ssh -N -D 127.0.0.1:1080 t3-dev-cp</pre>
+<p>Chrome에서 팀 dev 웹 주소 <code>http://10.10.24.101/</code>를 열어요. 아래 항목은 <b>직접 확인한 것만</b> 체크해요. 체크는 이 화면에서 복습할 때 사용해요.</p>
+<ol>
+<li><label><input type="checkbox"> 웹 첫 화면이 열린다.</label> → Gateway를 거쳐 웹에 도착했어요.</li>
+<li><label><input type="checkbox"> 팀 테스트 계정으로 로그인하고 HelloCloud로 돌아온다.</label> → Keycloak 로그인 흐름을 확인했어요.</li>
+<li><label><input type="checkbox"> 조직 목록이 열리고, 테스트 조직을 만들 수 있다.</label> → 웹에서 조직 조회와 생성 기능을 확인했어요.</li>
+<li><label><input type="checkbox"> 새로고침 후 만든 조직이 목록에 보인다.</label> → 다시 조회해도 만든 조직을 확인할 수 있어요.</li>
+</ol>
+<details><summary>팀 리뷰에 쓸 API 응답은 어디서 봐요?</summary><p>Chrome에서 <b>F12 → Network → Fetch/XHR</b>를 열고 새로고침해요. <code>/api/users/me</code>와 <code>/api/orgs</code> 요청을 눌러 <b>Request Method가 GET</b>인지, <b>Status가 200</b>인지 확인해요. 조직 생성 요청은 <b>POST</b>이므로 조회 요청과 구분해서 실제 상태 코드를 기록해요.</p></details>
+<p class="note">웹은 열리는데 조직 목록만 404라면, 실패한 요청 주소와 상태 코드를 기록해요. Gateway의 API 경로와 user-service 쪽에서 요청을 어떻게 받았는지 함께 확인할 단서가 돼요.</p></section>
+<section><h2>검증 결과를 팀에 남기는 법</h2><table><tr><th scope="col">기록할 항목</th><th scope="col">적을 내용</th></tr><tr><td>웹 이미지</td><td>Git 태그와 dev Deployment 태그가 일치했는지</td></tr><tr><td>배포 상태</td><td>web-dev, gateway-dev, user-service-dev에서 직접 본 상태</td></tr><tr><td>브라우저 테스트</td><td>웹 열기 → 로그인 → 조직 생성 → 새로고침 후 조회 중 어디까지 됐는지</td></tr></table>
+<p>팀원이 로그인과 조직 생성 성공을 공유한 상태예요. 내 리뷰에는 내가 확인한 결과를 적어요.</p></section>
+</main>
+<script>
+const buttons = [...document.querySelectorAll('nav button')];
+const lessons = [...document.querySelectorAll('.lesson')];
+for (const button of document.querySelectorAll('[data-panel]')) {
+  button.addEventListener('click', () => {
+    const selected = button.dataset.panel;
+    for (const lesson of lessons) {
+      lesson.hidden = selected !== 'all' && lesson.id !== selected;
+    }
+    for (const item of buttons) {
+      item.setAttribute('aria-pressed', String(item.dataset.panel === selected));
+    }
+    if (button.closest('.flow')) document.getElementById(selected).scrollIntoView();
+  });
+}
+</script></html>
+
